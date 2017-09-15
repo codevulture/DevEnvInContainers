@@ -1,4 +1,3 @@
-vagrant@devstack:~$ cat TEST_2/Dockerfile 
 FROM golang
 MAINTAINER janonymous.codevulture@gmail.com
 
@@ -6,7 +5,7 @@ MAINTAINER janonymous.codevulture@gmail.com
 ENV WORKING_DIR $GOPATH/src/k8s.io
 ENV USER codevulture
 ENV FEATURE feature
-RUN apt-get update && apt-get install rsync -y
+RUN apt-get update && apt-get install rsync apt-transport-https ca-certificates curl gnupg2 software-properties-common -y
 RUN mkdir -p $WORKING_DIR
 WORKDIR $WORKING_DIR
 
@@ -35,6 +34,10 @@ RUN git reset --hard upstream/master
 
 #Feature branch
 RUN git checkout -b $FEATURE
-RUN make
 RUN hack/install-etcd.sh
-RUN make verify && make update && make test
+ENV PATH /go/src/k8s.io/kubernetes/third_party/etcd:${PATH}
+RUN hack/update-generated-swagger-docs.sh
+RUN hack/update-swagger-spec.sh
+
+#TODO: Install docker first
+#RUN make verify && make update && make test
